@@ -85,9 +85,9 @@ Urutan prioritas: flag CLI > env (`NINEROUTER_BASE_URL`, `NINEROUTER_API_KEY`) >
 
 Pas OMP jalan, extension ini daftar otomatis.
 
-**Slash command:** `/9router-sync` — sync, merge, dan panggil `registerProvider()` biar langsung kelihatan di `/models`.
+**Slash command:** `/9router-sync`. Sync, merge, dan panggil `registerProvider()` biar langsung kelihatan di `/models`.
 
-**Agent tool:** `sync_9router_models` — bisa dipanggil agent. Ada parameter opsional `baseUrl`.
+**Agent tool:** `sync_9router_models`. Bisa dipanggil agent. Ada parameter opsional `baseUrl`.
 
 Cara pasang: link atau copy `src/index.ts` ke `~/.omp/agent/extensions/nine-router-sync/index.ts`.
 
