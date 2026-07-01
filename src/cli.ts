@@ -36,11 +36,19 @@ async function main() {
   console.log(`Heuristic defaults:${result.heuristicDefaults}`);
   console.log(`Skipped:           ${result.skipped}`);
   console.log(`Sidecar:           ${result.outputPath}`);
-  if (args.autoMerge) {
-    console.log("Merged to:         ~/.omp/agent/models.yml");
+  if (args.autoMerge && result.diff) {
+    const diff = result.diff;
+    if (diff.added.length > 0) {
+      console.log(`  +${diff.added.length} new: ${diff.added.slice(0, 5).join(", ")}${diff.added.length > 5 ? "..." : ""}`);
+    }
+    if (diff.removed.length > 0) {
+      console.log(`  -${diff.removed.length} removed: ${diff.removed.slice(0, 5).join(", ")}${diff.removed.length > 5 ? "..." : ""}`);
+    }
+    if (diff.added.length === 0 && diff.removed.length === 0) {
+      console.log("  No changes (model list identical)");
+    }
   }
   console.log();
-  console.log("Review output and merge into ~/.omp/agent/models.yml");
 }
 
 function parseArgs(): {

@@ -94,3 +94,12 @@ export interface GenerateResult {
   yamlBlock: string;
   outputPath: string;
 }
+
+// ─── Model diff ───────────────────────────────────────────────────
+
+export interface ModelDiff {
+  added: string[];
+  removed: string[];
+  totalBefore: number;
+  totalAfter: number;
+}

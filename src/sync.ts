@@ -11,7 +11,7 @@ import { setLiveCatalog } from "./mapper";
  * Fetches 9Router models, enriches, generates YAML block,
  * writes to sidecar AND optionally merges into models.yml.
  */
-import type { EnrichedModel, GenerateResult, LiveModel, NineRouterConfig } from "./types";
+import type { EnrichedModel, GenerateResult, LiveModel, ModelDiff, NineRouterConfig } from "./types";
 
 export interface SyncOptions {
   config?: Partial<NineRouterConfig>;
@@ -23,6 +23,8 @@ export interface SyncOptions {
 export interface SyncResult extends GenerateResult {
   /** Enriched models ready for registerProvider() */
   enrichedModels: EnrichedModel[];
+  /** Model diff: what changed since last sync */
+  diff?: ModelDiff;
 }
 
 export async function syncNineRouter(options: SyncOptions = {}): Promise<SyncResult> {
@@ -63,6 +65,8 @@ export async function syncNineRouter(options: SyncOptions = {}): Promise<SyncRes
   const yamlBlock = generateYamlBlock(enrichResult.enriched, config);
   const outputPath = config.outputPath!;
   saveSidecar(yamlBlock, outputPath);
+  // Compute diff against previous models.yml (before merge)
+  const diff = computeModelDiff(config, enrichResult.enriched);
 
   // Auto-merge into models.yml if requested
   if (options.autoMerge) {
@@ -80,11 +84,11 @@ export async function syncNineRouter(options: SyncOptions = {}): Promise<SyncRes
       outputPath,
     ),
     enrichedModels: enrichResult.enriched,
+    diff,
   };
 }
-
+  
 /**
- * Merge enriched 9Router models into models.yml with atomic backup.
  *
  * Strategy:
  * 1. Backup → models.yml.bak (DANGER: overwrites)
@@ -220,4 +224,26 @@ function escapeYaml(s: string): string {
     return `"${s.replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
   }
   return s;
+}
+
+/**
+ * Compute the diff between previous models.yml model IDs and incoming IDs.
+ */
+function computeModelDiff(config: NineRouterConfig, newModels: EnrichedModel[]): ModelDiff {
+  const targetPath = config.modelsYmlPath || join(process.env.HOME || "/tmp", ".omp", "agent", "models.yml");
+  const oldContent = existsSync(targetPath) ? readFileSync(targetPath, "utf-8") : "";
+
+  // Extract model IDs from existing YAML
+  const oldIds = new Set<string>();
+  for (const line of oldContent.split("\n")) {
+    const m = line.match(/^\s{6}- id:\s*(.+)$/);
+    if (m) oldIds.add(m[1].trim());
+  }
+
+  const newIds = new Set(newModels.map((m) => m.id));
+
+  const added = [...newIds].filter((id) => !oldIds.has(id));
+  const removed = [...oldIds].filter((id) => !newIds.has(id));
+
+  return { added, removed, totalBefore: oldIds.size, totalAfter: newIds.size };
 }

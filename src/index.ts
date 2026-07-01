@@ -50,10 +50,12 @@ export default function nineRouterSync(pi: ExtensionAPI) {
         // registerProvider may not be available in all modes
       }
 
-      ctx.ui.notify(
-        `9Router sync: ${result.modelsFound} found, ${result.enriched} enriched. Merged to models.yml. Reload/restart OMP to pick up changes.`,
-        "info",
-      );
+      let msg = `9Router sync: ${result.modelsFound} found, ${result.enriched} enriched. Merged to models.yml.`;
+      if (result.diff) {
+        if (result.diff.added.length) msg += ` +${result.diff.added.length} new.`;
+        if (result.diff.removed.length) msg += ` -${result.diff.removed.length} removed.`;
+      }
+      ctx.ui.notify(msg, "info");
     },
   });
 
@@ -98,14 +100,24 @@ export default function nineRouterSync(pi: ExtensionAPI) {
         // registerProvider may not be available in all modes
       }
 
+      let diffLine = "";
+      if (result.diff) {
+        const parts: string[] = [];
+        if (result.diff.added.length) parts.push(`+${result.diff.added.length} new`);
+        if (result.diff.removed.length) parts.push(`-${result.diff.removed.length} removed`);
+        if (parts.length === 0) parts.push("no changes (model list identical)");
+        diffLine = `Models: ${parts.join(", ")}.\n`;
+      }
+
       return {
         content: [
           {
             type: "text",
-            text: `9Router sync complete.\nModels found: ${result.modelsFound}\nEnriched: ${result.enriched}\nHeuristic defaults: ${result.heuristicDefaults}\nMerged to: ~/.omp/agent/models.yml\n\nModels available immediately in this session. Reload/restart OMP for persistence.`,
+            text:
+              `9Router sync complete.\nModels found: ${result.modelsFound}\nEnriched: ${result.enriched}\nHeuristic defaults: ${result.heuristicDefaults}\n${diffLine}Merged to: ~/.omp/agent/models.yml\n\nModels available immediately in this session. Reload/restart OMP for persistence.`,
           },
         ],
-        details: { success: true, enriched: result.enriched, heuristicDefaults: result.heuristicDefaults },
+        details: { success: true, enriched: result.enriched, heuristicDefaults: result.heuristicDefaults, diff: result.diff },
       };
     },
   });
