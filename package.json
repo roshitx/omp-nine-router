@@ -52,7 +52,7 @@
     "typecheck": "tsc --noEmit",
     "changeset": "changeset",
     "version": "changeset version",
-    "release": "npm run build && changeset publish --provenance",
+    "release": "npm run build && changeset publish",
     "prepublishOnly": "npm run build"
   },
   "devDependencies": {
