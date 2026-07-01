@@ -5,3 +5,4 @@ dist/
 .env
 .env.local
 nine-router.generated.yml
+bun.lock
