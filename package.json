@@ -1,0 +1,67 @@
+{
+  "name": "@roshitx/omp-nine-router",
+  "version": "0.0.1",
+  "private": false,
+  "description": "OMP extension to sync models from 9Router — fetches, enriches, and merges into OMP models.yml",
+  "type": "module",
+  "keywords": [
+    "omp",
+    "oh-my-pi",
+    "9router",
+    "models",
+    "ai",
+    "openrouter"
+  ],
+  "license": "MIT",
+  "author": "roshitx",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/roshitx/omp-nine-router.git"
+  },
+  "bugs": {
+    "url": "https://github.com/roshitx/omp-nine-router/issues"
+  },
+  "homepage": "https://github.com/roshitx/omp-nine-router#readme",
+  "files": [
+    "dist/",
+    "src/"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    },
+    "./sync": {
+      "types": "./dist/sync.d.ts",
+      "import": "./dist/sync.js"
+    },
+    "./types": {
+      "types": "./dist/types.d.ts",
+      "import": "./dist/types.js"
+    }
+  },
+  "bin": {
+    "nine-router-sync": "./dist/cli.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "cli": "bun run src/cli.ts",
+    "format": "biome check --write src/",
+    "lint": "biome check src/",
+    "typecheck": "tsc --noEmit",
+    "changeset": "changeset",
+    "version": "changeset version",
+    "release": "npm run build && changeset publish",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.27.0",
+    "@types/node": "^22.0.0",
+    "typescript": "^5.7.0",
+    "@biomejs/biome": "^1.9.0"
+  },
+  "peerDependencies": {
+    "@oh-my-pi/pi-coding-agent": ">=0.1.0"
+  }
+}

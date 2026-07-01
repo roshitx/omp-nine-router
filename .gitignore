@@ -1,0 +1,7 @@
+node_modules/
+dist/
+*.bak
+*.tmp
+.env
+.env.local
+nine-router.generated.yml
