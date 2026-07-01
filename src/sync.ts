@@ -1,7 +1,7 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { fetchModels } from "./client";
-import { loadConfig } from "./config";
+import { fetchModels, checkEndpoint } from "./client";
+import { loadConfig, validateConfig } from "./config";
 import { enrichModels } from "./enrichment";
 import { buildResult, generateYamlBlock, saveSidecar } from "./generator";
 import { setLiveCatalog } from "./mapper";
@@ -18,6 +18,8 @@ export interface SyncOptions {
   liveModels?: LiveModel[];
   /** If true, also merge into models.yml (not just sidecar) */
   autoMerge?: boolean;
+  /** If true, skip all file writes */
+  dryRun?: boolean;
 }
 
 export interface SyncResult extends GenerateResult {
@@ -32,19 +34,24 @@ export async function syncNineRouter(options: SyncOptions = {}): Promise<SyncRes
 
   setLiveCatalog(options.liveModels ?? []);
 
-  if (!config.apiKey) {
+  // Validate config before doing anything
+  const configErrors = validateConfig(config);
+  if (configErrors.length > 0) {
     return {
-      ...buildResult(
-        0,
-        0,
-        0,
-        0,
-        ["No API key configured. Set NINEROUTER_API_KEY env var or add apiKey to ~/.omp/9router.yml"],
-        "",
-        config.outputPath!,
-      ),
+      ...buildResult(0, 0, 0, 0, configErrors, "", config.outputPath!),
       enrichedModels: [],
     };
+  }
+
+  // Health check: verify endpoint is reachable (skip for dry-run)
+  if (!options.dryRun) {
+    const endpointOk = await checkEndpoint(config.baseUrl, config.apiKey);
+    if (!endpointOk.ok) {
+      return {
+        ...buildResult(0, 0, 0, 0, [endpointOk.error], "", config.outputPath!),
+        enrichedModels: [],
+      };
+    }
   }
 
   const fetchResult = await fetchModels(config.baseUrl, config.apiKey);
@@ -64,12 +71,15 @@ export async function syncNineRouter(options: SyncOptions = {}): Promise<SyncRes
   const enrichResult = enrichModels(fetchResult.models, config);
   const yamlBlock = generateYamlBlock(enrichResult.enriched, config);
   const outputPath = config.outputPath!;
-  saveSidecar(yamlBlock, outputPath);
-  // Compute diff against previous models.yml (before merge)
+
+  // Skip file writes for dry-run
+  if (!options.dryRun) {
+    saveSidecar(yamlBlock, outputPath);
+  }
+
   const diff = computeModelDiff(config, enrichResult.enriched);
 
-  // Auto-merge into models.yml if requested
-  if (options.autoMerge) {
+  if (options.autoMerge && !options.dryRun) {
     mergeIntoModelsYml(config, enrichResult.enriched);
   }
 

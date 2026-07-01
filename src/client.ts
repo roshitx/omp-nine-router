@@ -107,3 +107,28 @@ function normalizeUrl(url: string): string {
   if (!u.endsWith("/v1")) u = `${u}/v1`;
   return `${u}/models`;
 }
+
+/** Quick endpoint health check: returns { ok } or { ok: false, error } */
+export async function checkEndpoint(
+  baseUrl: string,
+  apiKey: string,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  const url = normalizeUrl(baseUrl);
+  try {
+    const response = await fetch(url, {
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!response.ok) {
+      let body = "";
+      try { body = await response.text(); } catch { /* ignore */ }
+      return { ok: false, error: `Endpoint returned HTTP ${response.status}: ${body.slice(0, 200)}` };
+    }
+    return { ok: true };
+  } catch (e: any) {
+    return { ok: false, error: `Cannot reach endpoint: ${e.message}` };
+  }
+}

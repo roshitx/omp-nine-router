@@ -115,3 +115,25 @@ function parseSimpleYaml(raw: string): ConfigFileShape {
     includeOnly: parseBool(result.includeOnly),
   };
 }
+
+export function validateConfig(config: NineRouterConfig): string[] {
+  const errors: string[] = [];
+
+  if (!config.baseUrl || (!config.baseUrl.startsWith("http://") && !config.baseUrl.startsWith("https://"))) {
+    errors.push(`Invalid baseUrl: must start with http:// or https:// (got: "${config.baseUrl}")`);
+  }
+  if (!config.apiKey) {
+    errors.push("Missing apiKey: set NINEROUTER_API_KEY env var or add apiKey to ~/.omp/9router.yml");
+  }
+  if (config.providerId && !/^[a-z0-9_-]+$/i.test(config.providerId)) {
+    errors.push(`Invalid providerId: must match [a-z0-9_-] (got: "${config.providerId}")`);
+  }
+  if (config.excludeModels?.some((p) => !p)) {
+    errors.push("excludeModels contains empty pattern");
+  }
+  if (config.includeModels?.some((p) => !p)) {
+    errors.push("includeModels contains empty pattern");
+  }
+
+  return errors;
+}

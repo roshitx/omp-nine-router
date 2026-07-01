@@ -23,7 +23,12 @@ async function main() {
       includeOnly: args.includeOnly,
     },
     autoMerge: args.autoMerge,
+    dryRun: args.dryRun,
   });
+
+  if (args.dryRun) {
+    console.log("  ⚠  DRY RUN — no files written\n");
+  }
 
   if (result.errors.length > 0) {
     console.error("Errors:");
@@ -58,6 +63,7 @@ function parseArgs(): {
   excludeModels?: string[];
   includeModels?: string[];
   includeOnly?: boolean;
+  dryRun: boolean;
 } {
   const result: {
     baseUrl?: string;
@@ -66,7 +72,9 @@ function parseArgs(): {
     excludeModels?: string[];
     includeModels?: string[];
     includeOnly?: boolean;
-  } = { autoMerge: false };
+    dryRun: boolean;
+  } = { autoMerge: false, dryRun: false };
+
   const args = process.argv.slice(2);
   for (let i = 0; i < args.length; i++) {
     if (args[i] === "--base-url" && args[i + 1]) result.baseUrl = args[++i];
@@ -77,9 +85,10 @@ function parseArgs(): {
     else if (args[i] === "--include" && args[i + 1])
       result.includeModels = (result.includeModels || []).concat(args[++i].split(","));
     else if (args[i] === "--include-only") result.includeOnly = true;
+    else if (args[i] === "--dry-run") result.dryRun = true;
     else if (args[i] === "--help" || args[i] === "-h") {
       console.log(
-        "Usage: bun run cli.ts [--auto-merge] [--base-url <url>] [--api-key <key>] [--exclude <patterns>] [--include <patterns>] [--include-only]",
+        "Usage: bun run cli.ts [--auto-merge] [--dry-run] [--base-url <url>] [--api-key <key>] [--exclude <patterns>] [--include <patterns>] [--include-only]",
       );
       process.exit(0);
     }
