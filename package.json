@@ -42,7 +42,7 @@
     }
   },
   "bin": {
-    "nine-router-sync": "dist/cli.js"
+    "nine-router-sync": "./dist/cli.js"
   },
   "scripts": {
     "build": "tsc",
@@ -63,8 +63,9 @@
   },
   "peerDependencies": {
     "@oh-my-pi/pi-coding-agent": ">=0.1.0"
-  }
+  },
   "publishConfig": {
     "access": "public",
     "provenance": true
+}
 }
