@@ -37,6 +37,6 @@ jobs:
           publish: bun run release
           version: bun run version
           commit: "chore: version bump"
-          title: "Version Packages"
+          enable-provenance: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
