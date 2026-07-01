@@ -22,10 +22,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          registry-url: "https://registry.npmjs.org"
 
       - uses: oven-sh/setup-bun@v2
         with:
           bun-version: latest
+
       - run: bun install
 
       - run: bun run typecheck
@@ -37,6 +39,6 @@ jobs:
           publish: bun run release
           version: bun run version
           commit: "chore: version bump"
-          enable-provenance: true
+          title: "Version Packages"
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
