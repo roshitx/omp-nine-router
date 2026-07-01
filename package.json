@@ -1,6 +1,6 @@
 {
   "name": "@roshitx/omp-nine-router",
-  "version": "0.0.1",
+  "version": "0.1.0",
   "private": false,
   "description": "OMP extension to sync models from 9Router — fetches, enriches, and merges into OMP models.yml",
   "type": "module",
