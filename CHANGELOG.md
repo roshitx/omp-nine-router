@@ -1,5 +1,11 @@
 # @roshitx/omp-nine-router
 
+## 0.2.1
+
+### Patch Changes
+
+- 19db7fa: Refresh model enrichment and overlay live CommandCode metadata for CMC models, including names, context windows, pricing, modalities, and new model aliases.
+
 ## 0.2.0
 
 ### Minor Changes
