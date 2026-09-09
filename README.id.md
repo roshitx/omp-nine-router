@@ -19,7 +19,7 @@ npx @roshitx/omp-nine-router --help
 ## Mulai
 
 ```bash
-export NINEROUTER_BASE_URL=https://ai.roshit.site/v1
+export NINEROUTER_BASE_URL=https://ai.roshit.web.id/v1
 export NINEROUTER_API_KEY=sk-...
 
 npx nine-router-sync --auto-merge
@@ -72,7 +72,7 @@ nine-router-sync --include 'Best,Mocin,Judge' --include-only --auto-merge
 CLI baca `~/.omp/9router.yml` kalo ada:
 
 ```yaml
-baseUrl: https://ai.roshit.site/v1
+baseUrl: https://ai.roshit.web.id/v1
 apiKey: sk-...
 excludeModels: "*/OpenRouter-Free,*/groq/*"
 includeModels: "Best,Mocin,Judge"
@@ -97,7 +97,7 @@ Cara pasang: link atau copy `src/index.ts` ke `~/.omp/agent/extensions/nine-rout
 import { syncNineRouter } from "@roshitx/omp-nine-router/sync";
 
 const result = await syncNineRouter({
-  config: { baseUrl: "https://ai.roshit.site/v1" },
+  config: { baseUrl: "https://ai.roshit.web.id/v1" },
   autoMerge: true,
 });
 

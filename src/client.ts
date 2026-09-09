@@ -67,6 +67,30 @@ export async function fetchModels(baseUrl: string, apiKey: string): Promise<Fetc
   return parseModelsResponse(json);
 }
 
+const COMMAND_CODE_MODELS_URL = "https://api.commandcode.ai/provider/v1/models";
+
+export async function fetchCommandCodeModels(): Promise<FetchResult> {
+  try {
+    const response = await fetch(COMMAND_CODE_MODELS_URL, { signal: AbortSignal.timeout(15_000) });
+    if (!response.ok) return { models: [], rawShape: "unknown", rawKeys: [], errors: [] };
+    return parseModelsResponse(await response.json());
+  } catch {
+    return { models: [], rawShape: "unknown", rawKeys: [], errors: [] };
+  }
+}
+
+export function overlayCommandCodeModels(
+  routerModels: NineRouterModel[],
+  commandCodeModels: NineRouterModel[],
+): NineRouterModel[] {
+  const byId = new Map(commandCodeModels.map((model) => [model.id.toLowerCase(), model]));
+  return routerModels.map((model) => {
+    if (!model.id.toLowerCase().startsWith("cmc/")) return model;
+    const commandCode = byId.get(model.id.slice(4).toLowerCase());
+    return commandCode ? { ...model, ...commandCode, id: model.id, command_code_metadata: true } : model;
+  });
+}
+
 function parseModelsResponse(json: unknown): FetchResult {
   if (!json || typeof json !== "object") {
     return { models: [], rawShape: "unknown", rawKeys: [], errors: ["Response is not an object"] };

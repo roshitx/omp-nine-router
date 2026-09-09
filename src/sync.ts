@@ -1,6 +1,6 @@
 import { existsSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
-import { fetchModels, checkEndpoint } from "./client";
+import { checkEndpoint, fetchCommandCodeModels, fetchModels, overlayCommandCodeModels } from "./client";
 import { loadConfig, validateConfig } from "./config";
 import { enrichModels } from "./enrichment";
 import { buildResult, generateYamlBlock, saveSidecar } from "./generator";
@@ -68,7 +68,9 @@ export async function syncNineRouter(options: SyncOptions = {}): Promise<SyncRes
     };
   }
 
-  const enrichResult = enrichModels(fetchResult.models, config);
+  const commandCodeResult = await fetchCommandCodeModels();
+  const rawModels = overlayCommandCodeModels(fetchResult.models, commandCodeResult.models);
+  const enrichResult = enrichModels(rawModels, config);
   const yamlBlock = generateYamlBlock(enrichResult.enriched, config);
   const outputPath = config.outputPath!;
 
@@ -202,6 +204,7 @@ function generateProviderBlock(config: NineRouterConfig, models: EnrichedModel[]
     lines.push(`      - id: ${m.id}`);
     lines.push(`        name: ${escapeYaml(m.name)}`);
     lines.push(`        api: ${m.api || "openai-completions"}`);
+    lines.push(`        input: [${m.input.join(", ")}]`);
     if (m.thinking?.length)
       lines.push(`        thinking:\n          mode: effort\n          efforts: [${m.thinking.join(", ")}]`);
     lines.push(`        contextWindow: ${m.contextWindow}`);

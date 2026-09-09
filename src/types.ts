@@ -13,6 +13,8 @@ export interface NineRouterModel {
   object?: string;
   created?: number;
   owned_by?: string;
+  name?: string;
+  command_code_metadata?: boolean;
   context_length?: number;
   max_tokens?: number;
   pricing?: { prompt?: number; completion?: number };

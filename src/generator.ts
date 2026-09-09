@@ -34,6 +34,7 @@ export function generateYamlBlock(models: EnrichedModel[], config: NineRouterCon
       lines.push(`      - id: ${m.id}`);
       lines.push(`        name: ${escapeYamlString(m.name)}`);
       lines.push(`        api: ${m.api || "openai-completions"}`);
+      lines.push(`        input: [${m.input.join(", ")}]`);
       if (m.thinking?.length)
         lines.push(`        thinking:\n          mode: effort\n          efforts: [${m.thinking.join(", ")}]`);
       lines.push("        cost:");
